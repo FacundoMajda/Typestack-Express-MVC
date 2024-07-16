@@ -9,7 +9,7 @@ import { PaginatedResponse } from "../common/pagination/interfaces/paginated-res
 @Service()
 export class UserService {
   private AppDataSource;
-  private Repository: Repository<Usuario>;
+  private repository: Repository<Usuario>;
   private isInitialized: Promise<void>;
 
   constructor() {
@@ -18,7 +18,7 @@ export class UserService {
 
   private async init() {
     this.AppDataSource = await getDataSource();
-    this.Repository = this.AppDataSource.getRepository(Usuario);
+    this.repository = this.AppDataSource.getRepository(Usuario);
   }
 
   private getOrder(sortBy: string, sortOrder: "ASC" | "DESC"): any {
@@ -33,7 +33,7 @@ export class UserService {
     const { page, limit, sortBy, sortOrder } = paginationDto;
     const skip = (page - 1) * limit;
 
-    const [data, totalItems] = await this.Repository.findAndCount({
+    const [data, totalItems] = await this.repository.findAndCount({
       where,
       skip,
       take: limit,
@@ -62,24 +62,24 @@ export class UserService {
 
   async createUser(user: Usuario) {
     await this.isInitialized;
-    return await this.Repository.save(user);
+    return await this.repository.save(user);
   }
 
   async getUserById(id: number) {
     await this.isInitialized;
-    return await this.Repository.findOne({ where: { id } });
+    return await this.repository.findOne({ where: { id } });
   }
 
   async updateUser(id: number) {
     await this.isInitialized;
     const user = await this.getUserById(id);
-    await this.Repository.update(id, { ...user });
+    await this.repository.update(id, { ...user });
     return this.getUserById(id);
   }
 
   async deleteUser(id: number) {
     await this.isInitialized;
     const user = await this.getUserById(id);
-    return await this.Repository.delete(user);
+    return await this.repository.delete(user);
   }
 }
