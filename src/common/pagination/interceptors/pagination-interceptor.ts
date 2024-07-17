@@ -1,22 +1,23 @@
 import { Action, Interceptor, InterceptorInterface } from "routing-controllers";
 import { Service } from "typedi";
-import { PaginatedResponse } from "../interfaces/paginated-response";
+import { PageMetadataDto } from "../dtos/page-metadata.dto";
+import { PaginatedDto } from "../dtos/paginated.dto";
 
 @Interceptor()
 @Service()
 export class PaginationInterceptor implements InterceptorInterface {
   intercept(action: Action, content: any) {
     if (content && Array.isArray(content.data) && content.meta) {
-      const paginatedResponse: PaginatedResponse<any> = {
+      const metadata = new PageMetadataDto(content.data.length);
+      metadata.setPaginationData(
+        content.meta.pageNumber,
+        content.meta.pageSize
+      );
+      metadata.sortBy = content.meta.sortBy;
+
+      const paginatedResponse: PaginatedDto<any> = {
         data: content.data,
-        meta: {
-          currentPage: content.meta.currentPage,
-          itemsPerPage: content.meta.itemsPerPage,
-          totalItems: content.meta.totalItems,
-          totalPages: content.meta.totalPages,
-          sortBy: content.meta.sortBy,
-          sortOrder: content.meta.sortOrder,
-        },
+        metadata: metadata,
       };
       return paginatedResponse;
     }

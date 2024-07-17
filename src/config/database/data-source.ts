@@ -21,11 +21,18 @@ const DataSourceConfig: DataSourceOptions = {
 };
 
 export const AppDataSource = new DataSource(DataSourceConfig);
-AppDataSource.initialize()
-  .then(async () => {
+
+export async function initializeAndSynchronize() {
+  try {
+    await AppDataSource.initialize();
     console.log("Conexión inicializada con la base de datos...");
-  })
-  .catch((error) => console.log(error));
+
+    await AppDataSource.synchronize();
+    console.log("Sincronización con la base de datos completada...");
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 export const getDataSource = (delay = 3000): Promise<DataSource> => {
   if (AppDataSource.isInitialized) return Promise.resolve(AppDataSource);

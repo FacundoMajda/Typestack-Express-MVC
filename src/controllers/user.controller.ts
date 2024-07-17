@@ -7,28 +7,22 @@ import {
   Param,
   Patch,
   Post,
-  QueryParams,
-  UseAfter,
-  UseBefore,
+  QueryParams
 } from "routing-controllers";
 import { Service } from "typedi";
-import { PaginationDTO } from "../common/pagination/dtos/pagination.dto";
-import { LoggerMiddleware } from "../middlewares/logger-middleware";
-import { MyMiddleware } from "../middlewares/some-middleware";
-import { UserService } from "../services/user.service";
+import { SearchUsuarioDto } from "../dtos/usuario/search-user.dto";
+import { UsuarioService } from "../services/user.service";
 
 @Service()
 @Controller("/users")
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(private userService: UsuarioService) {}
 
   // - - - - - //
 
-  @UseBefore(MyMiddleware)
-  @UseAfter(LoggerMiddleware)
   @Get("/")
-  async getUsers(@QueryParams() paginationDto: PaginationDTO) {
-    return await this.userService.getUsers(paginationDto);
+  async getUsers(@QueryParams() request: SearchUsuarioDto) {
+    return await this.userService.getUsers(request);
   }
 
   // - - - - - //
