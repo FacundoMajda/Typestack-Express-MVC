@@ -56,6 +56,9 @@ dependencies:
   typeorm:
     specifier: ^0.3.20
     version: 0.3.20(mysql2@3.10.3)
+  typeorm-typedi-extensions:
+    specifier: ^0.4.1
+    version: 0.4.1(typedi@0.10.0)(typeorm@0.3.20)
 
 devDependencies:
   '@types/express':
@@ -2479,6 +2482,16 @@ packages:
 
   /typedi@0.10.0:
     resolution: {integrity: sha512-v3UJF8xm68BBj6AF4oQML3ikrfK2c9EmZUyLOfShpJuItAqVBHWP/KtpGinkSsIiP6EZyyb6Z3NXyW9dgS9X1w==}
+    dev: false
+
+  /typeorm-typedi-extensions@0.4.1(typedi@0.10.0)(typeorm@0.3.20):
+    resolution: {integrity: sha512-05hWktQ4zuXzTTUO3ao56yOezlvUuZhH2NRS//m0SOGCAJoVlfPTMHcmDaMSQy/lMfAwPWoIyn+sfK7ONzTdXQ==}
+    peerDependencies:
+      typedi: '>=0.10.0'
+      typeorm: '>=0.2.30'
+    dependencies:
+      typedi: 0.10.0
+      typeorm: 0.3.20(mysql2@3.10.3)
     dev: false
 
   /typeorm@0.3.20(mysql2@3.10.3):
