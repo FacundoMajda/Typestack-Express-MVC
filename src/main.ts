@@ -1,12 +1,13 @@
-import "reflect-metadata";
 import express, { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
+import "reflect-metadata";
 import { useContainer, useExpressServer } from "routing-controllers";
-import { config } from "./common/env/environment";
-import { initializeAndSynchronize } from "./config/database/data-source";
 import { Container } from "typedi";
+import { config } from "./common/env/environment";
+import { RepositoryManager } from "./config/database/data-source";
+import { DbConfig } from "./config/database/db.config";
 import { Logger } from "./config/logger/logger";
 
 async function boostrap(): //  Promise<express.Application>
@@ -37,7 +38,8 @@ Promise<express.Express> {
     },
     // defaultErrorHandler: false,
   }).listen(PORT, async () => {
-    await initializeAndSynchronize();
+    await RepositoryManager.registerRepositories();
+    await DbConfig.initialize();
     logger.info(`El servidor se está ejecutando en ${HOST}:${PORT}`);
   });
 

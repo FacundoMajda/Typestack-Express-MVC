@@ -1,21 +1,11 @@
 import "reflect-metadata";
 import { Service } from "typedi";
+import { SearchUsuarioDto } from "../dtos/usuario/search-user.dto";
 import { Usuario } from "../models/user.entity";
 import { UsuarioRepository } from "../repositories/user.repository";
-import { SearchUsuarioDto } from "../dtos/usuario/search-user.dto";
 @Service()
 export class UsuarioService {
-  private userRepository: UsuarioRepository;
-  // private isInitialized: Promise<void>;
-
-  // constructor() {
-  // this.isInitialized = this.init();
-  // }
-
-  // private async init() {
-  //   this.AppDataSource = await getDataSource();
-  //   this.repository = this.AppDataSource.getRepository(Usuario);
-  // }
+  constructor(private userRepository: UsuarioRepository) {}
 
   async getUsers(request: SearchUsuarioDto) {
     // await this.isInitialized;

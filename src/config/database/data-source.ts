@@ -1,46 +1,46 @@
 import "dotenv/config";
-import { DataSource, DataSourceOptions } from "typeorm";
-import { config } from "../../common/env/environment";
+import { Container } from "typedi";
+import { DataSource, Repository } from "typeorm";
+import * as path from "path";
+import * as fs from "fs";
+import { DbConfig } from "./db.config";
 
-const DataSourceConfig: DataSourceOptions = {
-  type: "mysql",
-  host: config.database.host,
-  port: config.database.port,
-  username: config.database.user,
-  password: config.database.password,
-  database: config.database.database,
-  entities: [__dirname + "/../../models/*.entity{.ts,.js}"],
-  migrations:
-    process.env.NODE_ENV === "production"
-      ? ["dist/migration/*{.ts,.js}"]
-      : [__dirname + "/../../migration/*{.ts,.js}"],
-  logging: true,
-  synchronize: true,
-  migrationsRun: true,
-  // dropSchema: true,
-};
+export class RepositoryManager {
+  static async registerRepositories() {
+    const dataSource = await DbConfig.initialize();
+    const repositoriesPath = path.join(__dirname, "../../repositories");
+    const repositoryFiles = fs
+      .readdirSync(repositoriesPath)
+      .filter(
+        (file) =>
+          file.endsWith(".repository.ts") || file.endsWith(".repository.js")
+      );
 
-export const AppDataSource = new DataSource(DataSourceConfig);
+    for (const file of repositoryFiles) {
+      const repositoryModule = await import(path.join(repositoriesPath, file));
+      const RepositoryClass = Object.values(repositoryModule)[0] as any;
 
-export async function initializeAndSynchronize() {
-  try {
-    await AppDataSource.initialize();
-    console.log("Conexión inicializada con la base de datos...");
-
-    await AppDataSource.synchronize();
-    console.log("Sincronización con la base de datos completada...");
-  } catch (error) {
-    console.log(error);
+      if (RepositoryClass.prototype instanceof Repository) {
+        const instance = new RepositoryClass(dataSource);
+        Container.set(RepositoryClass, instance);
+        console.log(`Registered repository: ${RepositoryClass.name}`);
+      }
+    }
   }
 }
 
-export const getDataSource = (delay = 3000): Promise<DataSource> => {
-  if (AppDataSource.isInitialized) return Promise.resolve(AppDataSource);
+export const AppDataSource = DbConfig.initialize();
 
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (AppDataSource.isInitialized) resolve(AppDataSource);
-      else reject("Error al crear la conexión con la base de datos");
-    }, delay);
-  });
-};
+export async function initializeAndSynchronize() {
+  try {
+    const dataSource = await AppDataSource;
+    console.log("Conexión inicializada con la base de datos...");
+    await dataSource.synchronize();
+    console.log("Sincronización con la base de datos completada...");
+  } catch (error) {
+    console.error(
+      "Error al inicializar o sincronizar la base de datos:",
+      error
+    );
+  }
+}
